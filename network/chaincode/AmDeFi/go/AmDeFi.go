@@ -57,7 +57,6 @@ func (t *SmartContract) LenderSellToken(stub shim.ChaincodeStubInterface, args [
 	loanId := args[1]
 	tokenAmount, err:= strconv.ParseInt(args[2], 10, 64)
 	// Get the state from the ledger
-
 	walletAsBytes, err := stub.GetState(walletKey)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + walletKey + "\"}"
@@ -67,6 +66,8 @@ func (t *SmartContract) LenderSellToken(stub shim.ChaincodeStubInterface, args [
 		jsonResp := walletKey
 		return shim.Error(jsonResp)
 	}
+
+	//  parse ByteArray to walletModel Model
 	walletModel := DigitalWallet{}
 	errWalletUnmarshal := json.Unmarshal(walletAsBytes, &walletModel)
 	if errWalletUnmarshal != nil {
@@ -74,7 +75,7 @@ func (t *SmartContract) LenderSellToken(stub shim.ChaincodeStubInterface, args [
 		return shim.Error(jsonResp)
 	}
 	marketKey := marketKey
-	//Get Market
+	//Get the State from the ledger
 	documentMarket, err := stub.GetState(marketKey)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + marketKey + "\"}"
@@ -84,6 +85,7 @@ func (t *SmartContract) LenderSellToken(stub shim.ChaincodeStubInterface, args [
 		jsonResp := marketKey
 		return shim.Error(jsonResp)
 	}
+	//  parse ByteArray to marketModel Model
 	var market Market
 	UnmarlshalMarket := json.Unmarshal(documentMarket, &market)
 	if UnmarlshalMarket != nil {
@@ -98,11 +100,13 @@ func (t *SmartContract) LenderSellToken(stub shim.ChaincodeStubInterface, args [
 		println("ParseInt is error" + err.Error())
 		return shim.Error("ParseInt is error" + err.Error())
 	}
+	//if loadId in wallet has value
 	if len(walletModel.LenderLoan) != 0 {
 		for _, value := range walletModel.LenderLoan {
 			println(value)
 			if loanId == value {
 				println("check loanId")
+				// get State LoanDocument from ledger
 				LoanAsByte, err := stub.GetState(value)
 				if err != nil {
 					jsonResp := "{\"Error\":\"Failed to get state for " + value + "\"}"
@@ -112,14 +116,17 @@ func (t *SmartContract) LenderSellToken(stub shim.ChaincodeStubInterface, args [
 					jsonResp := value
 					return shim.Error(jsonResp)
 				}
+				//  parse ByteArray to loanModel 
 				errLoanUnmarshal := json.Unmarshal(LoanAsByte, &LenderLoan)
 				if errLoanUnmarshal != nil {
 					jsonResp := "{\"Error\":\"Failed to get unmarshall for " + value + "\"}"
 					return shim.Error(jsonResp)
 				}
+				// check token is enough to sell
 				if (int(tokenAmount) <= len(LenderLoan.Token)) {
 					println("check Token")
 					for i := 0; i < int(tokenAmount); i++ {
+						//get the State Token from ledger
 						TokenAsByte, err := stub.GetState(LenderLoan.Token[i])
 						if err != nil {
 							jsonResp := "{\"Error\":\"Failed to get state for " + value + "\"}"
@@ -129,6 +136,7 @@ func (t *SmartContract) LenderSellToken(stub shim.ChaincodeStubInterface, args [
 							jsonResp := LenderLoan.Token[i]
 							return shim.Error(jsonResp)
 						}
+					//  parse ByteArray to tokenModel Model
 						errTokenUnmarshal := json.Unmarshal(TokenAsByte, &token)
 						if errTokenUnmarshal != nil {
 							jsonResp := "{\"Error\":\"Failed to get unmarshall for " + value + "\"}"
@@ -139,7 +147,7 @@ func (t *SmartContract) LenderSellToken(stub shim.ChaincodeStubInterface, args [
 							token.IsSell = true
 							soldToken = append(soldToken, LenderLoan.Token[i])
 						}
-
+						// parse tokenMode to ByteArray 
 						println(">> START parse Token Model to ByteArray <<")
 						tokenAsByte, err := json.Marshal(token)
 						if err != nil {
@@ -164,14 +172,15 @@ func (t *SmartContract) LenderSellToken(stub shim.ChaincodeStubInterface, args [
 		}
 	}
 	println("check loanId end")
+	// parse marketModel to ByteArray 
 	marketAsByte, err := json.Marshal(market)
 	if err != nil {
-		println("Marshal parser token as Model to ByteArray is error" + err.Error())
-		return shim.Error("Marshal token as Model to ByteArray is error" + err.Error())
+		println("Marshal parser market as Model to ByteArray is error" + err.Error())
+		return shim.Error("Marshal market as Model to ByteArray is error" + err.Error())
 	}
-	println(">> END parse token Model to ByteArray <<")
+	println(">> END parse token market to ByteArray <<")
 
-	//byteArray put tokenAsByte to state blockchain
+	//byteArray put marketAsByte to state blockchain
 	println(">> START marketAsByte PutState to state blockchain <<")
 	err = stub.PutState(marketKey, marketAsByte)
 	if err != nil {
@@ -180,15 +189,15 @@ func (t *SmartContract) LenderSellToken(stub shim.ChaincodeStubInterface, args [
 	}
 	println(">> END marketAsByte PutState to state blockchain <<")
 
-
+	// parse walletModel to ByteArray 
 	WalletAsByte, err := json.Marshal(walletModel)
 	if err != nil {
-		println("Marshal parser token as Model to ByteArray is error" + err.Error())
-		return shim.Error("Marshal token as Model to ByteArray is error" + err.Error())
+		println("Marshal parser wallet as Model to ByteArray is error" + err.Error())
+		return shim.Error("Marshal wallet as Model to ByteArray is error" + err.Error())
 	}
-	println(">> END parse token Model to ByteArray <<")
+	println(">> END parse wallet Model to ByteArray <<")
 
-	//byteArray put tokenAsByte to state blockchain
+	//byteArray put walletAsByte to state blockchain
 	println(">> START WalletAsByte PutState to state blockchain <<")
 	err = stub.PutState(walletKey, WalletAsByte)
 	if err != nil {
@@ -196,6 +205,8 @@ func (t *SmartContract) LenderSellToken(stub shim.ChaincodeStubInterface, args [
 		return shim.Error("PutState is error" + err.Error())
 	}
 	println(">> END WalletAsByte PutState to state blockchain <<")
+
+	// parse token model to ByteArray
 	sellTokenAsByte, err := json.Marshal(soldToken)
 	if err != nil {
 		println("Marshal parser token as Model to ByteArray is error" + err.Error())
@@ -217,7 +228,6 @@ func (t *SmartContract) IssuePromotionOrder(stub shim.ChaincodeStubInterface, ar
 	var err error
 	walletKey := args[0]
 	// Get the state from the ledger
-
 	walletAsBytes, err := stub.GetState(walletKey)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + walletKey + "\"}"
@@ -227,6 +237,8 @@ func (t *SmartContract) IssuePromotionOrder(stub shim.ChaincodeStubInterface, ar
 		jsonResp := walletKey
 		return shim.Error(jsonResp)
 	}
+
+	// parse ByteArray to walletModel Model
 	walletModel := DigitalWallet{}
 	errWalletUnmarshal := json.Unmarshal(walletAsBytes, &walletModel)
 	if errWalletUnmarshal != nil {
@@ -276,8 +288,8 @@ func (t *SmartContract) IssuePromotionOrder(stub shim.ChaincodeStubInterface, ar
 	}
 	println(">> END parse token Model to ByteArray <<")
 
-	//byteArray put tokenAsByte to state blockchain
-	println(">> START PromoAsByte PutState to state blockchain <<")
+	//byteArray put promotinAsByte to state blockchain
+	println(">> START promotionAsByte PutState to state blockchain <<")
 	err = stub.PutState(PromoKey, PromoAsByte)
 	if err != nil {
 		println("PutState is error" + err.Error())
@@ -286,13 +298,13 @@ func (t *SmartContract) IssuePromotionOrder(stub shim.ChaincodeStubInterface, ar
 	println(">> END PromoAsByte PutState to state blockchain <<")
 	walletModel.PromotionOrder = append(walletModel.PromotionOrder, Promo.Address)
 
-	println(">> START parse Token Model to ByteArray <<")
+	println(">> START parse wallet Model to ByteArray <<")
 	WalletAsByte, err := json.Marshal(walletModel)
 	if err != nil {
-		println("Marshal parser token as Model to ByteArray is error" + err.Error())
-		return shim.Error("Marshal token as Model to ByteArray is error" + err.Error())
+		println("Marshal parser wallet as Model to ByteArray is error" + err.Error())
+		return shim.Error("Marshal wallet as Model to ByteArray is error" + err.Error())
 	}
-	println(">> END parse token Model to ByteArray <<")
+	println(">> END parse wallet Model to ByteArray <<")
 
 	//byteArray put tokenAsByte to state blockchain
 	println(">> START WalletAsByte PutState to state blockchain <<")
@@ -327,7 +339,7 @@ func (t *SmartContract) LenderGetPromotionOrder(stub shim.ChaincodeStubInterface
 		println("getWalletAddress is error" + err.Error())
 		return shim.Error("getWalletAddress is error" + err.Error())
 	}
-
+	// parse ByteArray to wallet Model
 	var walletModel DigitalWallet
 	errUnmarshalWalletProfile := json.Unmarshal(walletProfileAsByte, &walletModel)
 	if errUnmarshalWalletProfile != nil {
@@ -335,9 +347,10 @@ func (t *SmartContract) LenderGetPromotionOrder(stub shim.ChaincodeStubInterface
 		println("walletModel Error unmarshaling walletAddress:" + errUnmarshalWalletProfile.Error())
 		return shim.Error("walletModel Error unmarshaling walletAddress:" + errUnmarshalWalletProfile.Error())
 	}
+	//check wallet has value
 	if len(walletModel.PromotionOrder) != 0 {
 		for _, value := range walletModel.PromotionOrder {
-			//Get asset token
+			//Get asset token from ledger
 			PromoOrderAsByte, err := stub.GetState(value)
 			if PromoOrderAsByte == nil {
 				println("PromoOrderAsByte " + value + " is not defined")
@@ -347,6 +360,7 @@ func (t *SmartContract) LenderGetPromotionOrder(stub shim.ChaincodeStubInterface
 				println("PromoOrderAsByte is error" + err.Error())
 				return shim.Error("PromoOrderAsByte is error" + err.Error())
 			}
+			// parse ByteArray to promotionModel Model
 			var PromoOrder PromotionOrder
 			UnmarshalPromoOrder := json.Unmarshal(PromoOrderAsByte, &PromoOrder)
 			if UnmarshalPromoOrder != nil {
@@ -391,7 +405,6 @@ func (t *SmartContract) LenderBuyToken(stub shim.ChaincodeStubInterface, args []
 
 	walletLenderKey := args[0]
 	// Get the state from the ledger
-
 	walletLenderAsBytes, err := stub.GetState(walletLenderKey)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + walletLenderKey + "\"}"
@@ -401,6 +414,7 @@ func (t *SmartContract) LenderBuyToken(stub shim.ChaincodeStubInterface, args []
 		jsonResp := walletLenderKey
 		return shim.Error(jsonResp)
 	}
+	// parse ByteArray to walletModel Model
 	walletLenderModel := DigitalWallet{}
 	errWalletLenderUnmarshal := json.Unmarshal(walletLenderAsBytes, &walletLenderModel)
 	if errWalletLenderUnmarshal != nil {
@@ -410,7 +424,7 @@ func (t *SmartContract) LenderBuyToken(stub shim.ChaincodeStubInterface, args []
 
 	loanModel := LoanDocument{}
 	loanAddress := args[1]
-
+	//get state from ledger
 	loanAsBytes, err := stub.GetState(loanAddress)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + loanAddress + "\"}"
@@ -420,6 +434,7 @@ func (t *SmartContract) LenderBuyToken(stub shim.ChaincodeStubInterface, args []
 		jsonResp := loanAddress
 		return shim.Error(jsonResp)
 	}
+	// parse ByteArray to loanModel Model
 	errLoanDocUnmarshal := json.Unmarshal(loanAsBytes, &loanModel)
 	if errLoanDocUnmarshal != nil {
 		jsonResp := "{\"Error\":\"Failed to get unmarshall for  loan"+"\"}"
@@ -438,10 +453,10 @@ func (t *SmartContract) LenderBuyToken(stub shim.ChaincodeStubInterface, args []
 	var sellingToken []Token
 	var tokenModel Token
 	var remainDebt float64 = 0
-
+	//check token is enough to by
 	if (int(tokenAmount) <= len(loanModel.Token)) {
-		println("check Token")
 		for i := 0; i < int(tokenAmount); i++ {
+			//get state token from ledger
 			TokenAsByte, err := stub.GetState(loanModel.Token[i])
 			if err != nil {
 				jsonResp := "{\"Error\":\"Failed to get state for token"  + "\"}"
@@ -451,19 +466,22 @@ func (t *SmartContract) LenderBuyToken(stub shim.ChaincodeStubInterface, args []
 				jsonResp := loanModel.Token[i]
 				return shim.Error(jsonResp)
 			}
+			// parse bytesArray to tokenModel
 			errTokenUnmarshal := json.Unmarshal(TokenAsByte, &tokenModel)
 			if errTokenUnmarshal != nil {
 				jsonResp := "{\"Error\":\"Failed to get unmarshall for token" + "\"}"
 				return shim.Error(jsonResp)
 			}
+			//check status token is it selling
 			if(tokenModel.IsSell == true){
 				sellingToken = append(sellingToken,tokenModel)
 			}
 		}
-
+		//check buyer has enough balance to buy token
 		if (float64(tokenAmount) * sellingToken[0].Rate) <= walletLenderModel.Balance {
 			for i:= 0;i< int(tokenAmount); i++ {
 				var walletBorrowerKey = ""
+				//check token has owner?
 				if( sellingToken[i].LenderAddress != ""){
 					walletBorrowerKey =  sellingToken[i].LenderAddress
 					remainDebt += float64(sellingToken[i].Rate)
@@ -471,6 +489,7 @@ func (t *SmartContract) LenderBuyToken(stub shim.ChaincodeStubInterface, args []
 				}else {
 					walletBorrowerKey =  loanModel.Address					
 				}
+				//get State from ledger
 				walletBorrowerAsBytes, err := stub.GetState(walletBorrowerKey)
 					if err != nil {
 						jsonResp := "{\"Error\":\"Failed to get state for " + walletBorrowerKey + "\"}"
@@ -480,12 +499,13 @@ func (t *SmartContract) LenderBuyToken(stub shim.ChaincodeStubInterface, args []
 						jsonResp := walletBorrowerKey
 						return shim.Error(jsonResp)
 					}
+					//parse bytesArray to walletModel
 					errLenderUnmarshal := json.Unmarshal(walletBorrowerAsBytes, &walletBorrowerModel)
 					if errLenderUnmarshal != nil {
 						jsonResp := "{\"Error\":\"Failed to get unmarshall for " + walletBorrowerKey + "\"}"
 						return shim.Error(jsonResp)
 					}
-
+					//ADD token owner name
 					assetBorrowerAddress := sellingToken[i].AssetId
 					// Get the state from the ledger
 					assetBorrowerAsBytes, err := stub.GetState(assetBorrowerAddress)
@@ -497,15 +517,20 @@ func (t *SmartContract) LenderBuyToken(stub shim.ChaincodeStubInterface, args []
 						jsonResp := assetBorrowerAddress
 						return shim.Error(jsonResp)
 					}
+					// parse  byteArray to assetModel
 					errAssetLenderUnmarshal := json.Unmarshal(assetBorrowerAsBytes, &assetBorrowerModel)
 					if errAssetLenderUnmarshal != nil {
 						jsonResp := "{\"Error\":\"Failed to get unmarshall for " + assetBorrowerAddress + "\"}"
 						return shim.Error(jsonResp)
 					}
+					//logic balance
 					walletLenderModel.Balance -= sellingToken[i].Rate
 					walletBorrowerModel.Balance += sellingToken[i].Rate
+					// reduce tokenBalance
 					assetBorrowerModel.TokenBalance -= 1
+					//cal RemainDebt
 					loanModel.RemainDebt += sellingToken[i].Rate
+					//set status token
 					sellingToken[i].LenderAddress = walletBorrowerModel.Address
 					sellingToken[i].IsSell = false
 					
@@ -518,6 +543,7 @@ func (t *SmartContract) LenderBuyToken(stub shim.ChaincodeStubInterface, args []
 					}
 
 					//push token
+					//parse token to bytesArray
 					println(">> START parse Token Model to ByteArray <<")
 						tokenAsByte, err := json.Marshal(sellingToken[i])
 						if err != nil {
@@ -537,7 +563,7 @@ func (t *SmartContract) LenderBuyToken(stub shim.ChaincodeStubInterface, args []
 
 			
 				}//loop i 
-
+				//cal debtpermonth
 				loanModel.MinDebtPerMonth = (remainDebt * (float64(100)+loanModel.Interest)) / float64(assetBorrowerModel.LoanDuration)
 				//push asset
 				println(">> START parse assetBorrowerModel Model to ByteArray <<")
@@ -614,6 +640,7 @@ func (t *SmartContract) LenderBuyToken(stub shim.ChaincodeStubInterface, args []
 			}
 			
 		}
+		// not the right output but i ran out of time 
 		println(">> START parse loanModel2 Model to ByteArray <<")
 				loanAsByte, err := json.Marshal(loanModel)
 				if err != nil {
@@ -647,7 +674,7 @@ func (t *SmartContract) GetMarketplace(stub shim.ChaincodeStubInterface) pb.Resp
 	marketKey := marketKey
 	var result MarketAssetList
 
-	//Get Market
+	//Get State Market from ledger
 	documentMarket, err := stub.GetState(marketKey)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + marketKey + "\"}"
@@ -657,6 +684,7 @@ func (t *SmartContract) GetMarketplace(stub shim.ChaincodeStubInterface) pb.Resp
 		jsonResp := marketKey
 		return shim.Error(jsonResp)
 	}
+	//parse bytesArray to market model
 	var market Market
 	UnmarlshalMarket := json.Unmarshal(documentMarket, &market)
 	if UnmarlshalMarket != nil {
@@ -678,7 +706,7 @@ func (t *SmartContract) GetMarketplace(stub shim.ChaincodeStubInterface) pb.Resp
 			println("getLoanAddress is error" + err.Error())
 			return shim.Error("getLoanAddress is error" + err.Error())
 		}
-
+		//parse bytesArray to assetModel
 		errUnmarshalLoanAsByte := json.Unmarshal(loanAsByte, &assetList.LoanInfo)
 		if errUnmarshalLoanAsByte != nil {
 			//error unmarshaling
@@ -688,6 +716,7 @@ func (t *SmartContract) GetMarketplace(stub shim.ChaincodeStubInterface) pb.Resp
 
 		//Get asset
 		AssetAddress := assetList.LoanInfo.AssetId
+		//get State from ledger 
 		AssetAsByte, err := stub.GetState(AssetAddress)
 		if AssetAsByte == nil {
 			println("AssetAsByte " + AssetAddress + " is not defined")
@@ -697,7 +726,7 @@ func (t *SmartContract) GetMarketplace(stub shim.ChaincodeStubInterface) pb.Resp
 			println("getAssetAddress is error" + err.Error())
 			return shim.Error("getAssetAddress is error" + err.Error())
 		}
-
+		//parse bytesArray to asset model
 		errUnmarshalAssetAsByte := json.Unmarshal(AssetAsByte, &assetList.AssetInfo)
 		if errUnmarshalAssetAsByte != nil {
 			//error unmarshaling
@@ -705,6 +734,7 @@ func (t *SmartContract) GetMarketplace(stub shim.ChaincodeStubInterface) pb.Resp
 			return shim.Error("assetModel Error unmarshaling walletAddress:" + errUnmarshalAssetAsByte.Error())
 		}
 
+		//check asset.loanInfo has value
 		if len(assetList.LoanInfo.Token) != 0 {
 			for _, value := range assetList.LoanInfo.Token {
 				//Get asset token
@@ -719,23 +749,24 @@ func (t *SmartContract) GetMarketplace(stub shim.ChaincodeStubInterface) pb.Resp
 				}
 
 				var assetToken Token
+				//parse bytesArray to token model
 				errUnmarshalLoanAsByte := json.Unmarshal(assetTokenAsByte, &assetToken)
 				if errUnmarshalLoanAsByte != nil {
 					//error unmarshaling
 					println("assetTokenAsByte Error unmarshaling assetTokenAsByte:" + errUnmarshalLoanAsByte.Error())
 					return shim.Error("assetTokenAsByte Error unmarshaling assetTokenAsByte:" + errUnmarshalLoanAsByte.Error())
 				}
-
+				//if token is selling add token to assetList
 				if assetToken.IsSell == true {
 					assetList.AssetToken = append(assetList.AssetToken, assetToken)
 				}
 			}
 		}
-
+		//AssetList add Data
 		result.AssetList = append(result.AssetList, assetList)
 
 	}
-
+	//parse result as model to bytesArray
 	resultAsBytes, err := json.Marshal(result)
 	if err != nil {
 		println("Marshal parser result as Model to ByteArray is error" + err.Error())
@@ -771,7 +802,7 @@ func (t *SmartContract) BorrowerGetOwnerAssetList(stub shim.ChaincodeStubInterfa
 		println("getWalletAddress is error" + err.Error())
 		return shim.Error("getWalletAddress is error" + err.Error())
 	}
-
+	//parse bytesArray to wallet model
 	var walletModel DigitalWallet
 	errUnmarshalWalletProfile := json.Unmarshal(walletProfileAsByte, &walletModel)
 	if errUnmarshalWalletProfile != nil {
@@ -780,6 +811,7 @@ func (t *SmartContract) BorrowerGetOwnerAssetList(stub shim.ChaincodeStubInterfa
 		return shim.Error("walletModel Error unmarshaling walletAddress:" + errUnmarshalWalletProfile.Error())
 	}
 
+	//get all Borrow Asset
 	for _, value := range walletModel.BorrowerAsset {
 		var assetList AssetList
 		//Get My Asset
@@ -793,17 +825,18 @@ func (t *SmartContract) BorrowerGetOwnerAssetList(stub shim.ChaincodeStubInterfa
 			println("getAssetAddress is error" + err.Error())
 			return shim.Error("getAssetAddress is error" + err.Error())
 		}
-
+		//parse bytesArray to asset model
 		errUnmarshalAssetAsByte := json.Unmarshal(AssetAsByte, &assetList.AssetInfo)
 		if errUnmarshalAssetAsByte != nil {
 			//error unmarshaling
 			println("assetModel Error unmarshaling walletAddress:" + errUnmarshalAssetAsByte.Error())
 			return shim.Error("assetModel Error unmarshaling walletAddress:" + errUnmarshalAssetAsByte.Error())
 		}
-
+		//check if londId has value
 		if assetList.AssetInfo.LoanId != "" {
 			//Get loan
 			println(assetList.AssetInfo.LoanId)
+			//get state from ledger
 			loanAsByte, err := stub.GetState(assetList.AssetInfo.LoanId)
 			if loanAsByte == nil {
 				println("loanAsByte " + assetList.AssetInfo.LoanId + " is not defined")
@@ -813,7 +846,7 @@ func (t *SmartContract) BorrowerGetOwnerAssetList(stub shim.ChaincodeStubInterfa
 				println("getLoanAddress is error" + err.Error())
 				return shim.Error("getLoanAddress is error" + err.Error())
 			}
-
+			//parse bytesArray to model
 			errUnmarshalLoanAsByte := json.Unmarshal(loanAsByte, &assetList.LoanInfo)
 			if errUnmarshalLoanAsByte != nil {
 				//error unmarshaling
@@ -821,6 +854,7 @@ func (t *SmartContract) BorrowerGetOwnerAssetList(stub shim.ChaincodeStubInterfa
 				return shim.Error("loanModel Error unmarshaling LoanDocument:" + errUnmarshalLoanAsByte.Error())
 			}
 
+			//check is token has value
 			if len(assetList.LoanInfo.Token) != 0 {
 				for _, value := range assetList.LoanInfo.Token {
 					//Get asset token
@@ -834,6 +868,7 @@ func (t *SmartContract) BorrowerGetOwnerAssetList(stub shim.ChaincodeStubInterfa
 						return shim.Error("assetTokenAsByte is error" + err.Error())
 					}
 
+					//parse bytesArray to token model
 					var assetToken Token
 					errUnmarshalLoanAsByte := json.Unmarshal(assetTokenAsByte, &assetToken)
 					if errUnmarshalLoanAsByte != nil {
@@ -845,7 +880,7 @@ func (t *SmartContract) BorrowerGetOwnerAssetList(stub shim.ChaincodeStubInterfa
 				}
 			}
 		}
-
+		//add assetlist to result
 		result.AssetList = append(result.AssetList, assetList)
 	}
 
@@ -888,6 +923,7 @@ func (t *SmartContract) LenderGetAssetLendingList(stub shim.ChaincodeStubInterfa
 		return shim.Error("getWalletAddress is error" + err.Error())
 	}
 
+	//parse bytesArray to wallet
 	var walletModel DigitalWallet
 	errUnmarshalWalletProfile := json.Unmarshal(walletProfileAsByte, &walletModel)
 	if errUnmarshalWalletProfile != nil {
@@ -895,7 +931,7 @@ func (t *SmartContract) LenderGetAssetLendingList(stub shim.ChaincodeStubInterfa
 		println("walletModel Error unmarshaling walletAddress:" + errUnmarshalWalletProfile.Error())
 		return shim.Error("walletModel Error unmarshaling walletAddress:" + errUnmarshalWalletProfile.Error())
 	}
-
+	//get all loanId
 	for _, value := range walletModel.LenderLoan {
 		var assetList AssetList
 
@@ -909,14 +945,14 @@ func (t *SmartContract) LenderGetAssetLendingList(stub shim.ChaincodeStubInterfa
 			println("getLoanAddress is error" + err.Error())
 			return shim.Error("getLoanAddress is error" + err.Error())
 		}
-
+		//parse bytesArray to model
 		errUnmarshalLoanAsByte := json.Unmarshal(loanAsByte, &assetList.LoanInfo)
 		if errUnmarshalLoanAsByte != nil {
 			//error unmarshaling
 			println("loanModel Error unmarshaling LoanDocument:" + errUnmarshalLoanAsByte.Error())
 			return shim.Error("loanModel Error unmarshaling LoanDocument:" + errUnmarshalLoanAsByte.Error())
 		}
-
+		//check if token has value
 		if len(assetList.LoanInfo.Token) != 0 {
 			for _, value := range assetList.LoanInfo.Token {
 				//Get asset token
@@ -930,6 +966,7 @@ func (t *SmartContract) LenderGetAssetLendingList(stub shim.ChaincodeStubInterfa
 					return shim.Error("assetTokenAsByte is error" + err.Error())
 				}
 
+				//parse bytesArray to token model
 				var assetToken Token
 				errUnmarshalLoanAsByte := json.Unmarshal(assetTokenAsByte, &assetToken)
 				if errUnmarshalLoanAsByte != nil {
@@ -957,7 +994,7 @@ func (t *SmartContract) LenderGetAssetLendingList(stub shim.ChaincodeStubInterfa
 			println("getAssetAddress is error" + err.Error())
 			return shim.Error("getAssetAddress is error" + err.Error())
 		}
-
+		//parse bytesArray to model
 		errUnmarshalAssetAsByte := json.Unmarshal(AssetAsByte, &assetList.AssetInfo)
 		if errUnmarshalAssetAsByte != nil {
 			//error unmarshaling
@@ -1000,7 +1037,6 @@ func (t *SmartContract) Borrow(stub shim.ChaincodeStubInterface, args []string) 
 
 	walletKey := args[0]
 	// Get the state from the ledger
-
 	walletAsBytes, err := stub.GetState(walletKey)
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + walletKey + "\"}"
@@ -1010,6 +1046,7 @@ func (t *SmartContract) Borrow(stub shim.ChaincodeStubInterface, args []string) 
 		jsonResp := walletKey
 		return shim.Error(jsonResp)
 	}
+	//parse bytesArray to wallet
 	walletModel := DigitalWallet{}
 	errWalletUnmarshal := json.Unmarshal(walletAsBytes, &walletModel)
 	if errWalletUnmarshal != nil {
@@ -1017,6 +1054,7 @@ func (t *SmartContract) Borrow(stub shim.ChaincodeStubInterface, args []string) 
 		return shim.Error(jsonResp)
 	}
 
+	//get state asset from ledger
 	assetKey := args[1]
 	assetAsBytes, err := stub.GetState(assetKey)
 	if err != nil {
@@ -1027,13 +1065,14 @@ func (t *SmartContract) Borrow(stub shim.ChaincodeStubInterface, args []string) 
 		jsonResp := assetKey
 		return shim.Error(jsonResp)
 	}
+	//parse byteArray to asset model
 	assetModel := Asset{}
 	errAssetUnmarshal := json.Unmarshal(assetAsBytes, &assetModel)
 	if errAssetUnmarshal != nil {
 		jsonResp := "{\"Error\":\"Failed to get unmarshall for " + assetKey + "\"}"
 		return shim.Error(jsonResp)
 	}
-
+	//check status asset
 	if assetModel.Status != "approved" {
 		jsonResp := "{\"Error\":\"Failed It's Already be collateral for " + assetKey + "\"}"
 		return shim.Error(jsonResp)
@@ -1116,6 +1155,7 @@ func (t *SmartContract) Borrow(stub shim.ChaincodeStubInterface, args []string) 
 		jsonResp := marketKey
 		return shim.Error(jsonResp)
 	}
+	//parse bytesArray to market model
 	var market Market
 	UnmarlshalMarket := json.Unmarshal(documentMarket, &market)
 	if UnmarlshalMarket != nil {
