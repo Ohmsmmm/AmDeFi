@@ -243,6 +243,7 @@ func (t *SmartContract) Init(stub shim.ChaincodeStubInterface) pb.Response {
 		LoanMax:         8000, //80%
 		ValuateInterest: 4,    //Percent
 		TokenAmount:     10,
+		TokenBalance:    10,
 		Status:          "approved",
 		IssueDate:       time.Now(),
 	}
@@ -261,6 +262,7 @@ func (t *SmartContract) Init(stub shim.ChaincodeStubInterface) pb.Response {
 		LoanMax:         8000, //80%
 		ValuateInterest: 4,    //Percent
 		TokenAmount:     10,
+		TokenBalance:    10,
 		Status:          "approved",
 		IssueDate:       time.Now(),
 	}
@@ -279,6 +281,7 @@ func (t *SmartContract) Init(stub shim.ChaincodeStubInterface) pb.Response {
 		LoanMax:         8000, //80%
 		ValuateInterest: 4,    //Percent
 		TokenAmount:     10,
+		TokenBalance:    10,
 		Status:          "approved",
 		IssueDate:       time.Now(),
 	}

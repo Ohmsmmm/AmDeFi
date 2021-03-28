@@ -1,0 +1,402 @@
+{
+	"info": {
+		"_postman_id": "6981c786-65f8-444b-bc62-67cdc00f566f",
+		"name": "AmDeFi",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GetWallet",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "558344f429d66e42b53ff6449710cea0f79211c2163d3d92b4180eaee3b6afd1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bc_user\" : \"NodeMoonLaNiTiSukJai\",\n    \"wallet_address\"   : \"0x3921h3921hg7wRipjUIG39sdkOgfkbJe3KWDindoHIsdMiiNSKw\"\n\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://d94c5b39c025.ngrok.io/GetWallet",
+					"protocol": "https",
+					"host": [
+						"d94c5b39c025",
+						"ngrok",
+						"io"
+					],
+					"path": [
+						"GetWallet"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetMarketplace",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "558344f429d66e42b53ff6449710cea0f79211c2163d3d92b4180eaee3b6afd1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bc_user\" : \"NodeMoonLaNiTiSukJai\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://7205ac309b79.ngrok.io/GetMarketplace",
+					"protocol": "https",
+					"host": [
+						"7205ac309b79",
+						"ngrok",
+						"io"
+					],
+					"path": [
+						"GetMarketplace"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "BorrowerGetOwnerAssetList",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "558344f429d66e42b53ff6449710cea0f79211c2163d3d92b4180eaee3b6afd1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bc_user\" : \"NodeMoonLaNiTiSukJai\",\n    \"wallet_address\"   : \"0x3921h3921hg7wRipjUIG39sdkOgfkbJe3KWDindoHIsdMiiNSKw\"\n\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:7777/BorrowerGetOwnerAssetList",
+					"host": [
+						"localhost"
+					],
+					"port": "7777",
+					"path": [
+						"BorrowerGetOwnerAssetList"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LenderGetPromotionOrder",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "558344f429d66e42b53ff6449710cea0f79211c2163d3d92b4180eaee3b6afd1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bc_user\" : \"NodeMoonLaNiTiSukJai\",\n    \"wallet_address\"   : \"0x3921h3921hg7wRipjUIG39sdkOgfkbJe3KWDindoHIsdMiiNSKw\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:7777/LenderGetPromotionOrder",
+					"host": [
+						"localhost"
+					],
+					"port": "7777",
+					"path": [
+						"LenderGetPromotionOrder"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "IssuePromotion",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "558344f429d66e42b53ff6449710cea0f79211c2163d3d92b4180eaee3b6afd1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bc_user\" : \"NodeMoonLaNiTiSukJai\",\n    \"wallet_address\"   : \"0x3921h3921hg7wRipjUIG39sdkOgfkbJe3KWDindoHIsdMiiNSKw\",\n    \"value\" : 5000000.00,\n    \"risk_rate\": 5,\n    \"interest\" : 0.1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:7777/IssuePromotionOrder",
+					"host": [
+						"localhost"
+					],
+					"port": "7777",
+					"path": [
+						"IssuePromotionOrder"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LenderGetAssetLendingList",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "558344f429d66e42b53ff6449710cea0f79211c2163d3d92b4180eaee3b6afd1"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"bc_user\": \"NodeMoonLaNiTiSukJai\",\n      \"wallet_address\": \"0xSakdsjakIhdsklmLmJDpjIOhodsol93GHudg2kDNhKHodsb9dSk\"\n}"
+				},
+				"url": {
+					"raw": "localhost:7777/LenderGetAssetLendingList",
+					"host": [
+						"localhost"
+					],
+					"port": "7777",
+					"path": [
+						"LenderGetAssetLendingList"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetLoanDoc",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "558344f429d66e42b53ff6449710cea0f79211c2163d3d92b4180eaee3b6afd1"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"bc_user\": \"NodeMoonLaNiTiSukJai\",\n      \"loan_id\": \"0xS0HuhoMs0fMN8M9xWTtWnsDDzJytVL6B9nHq8OTWmstV1nbZY4sInXXWj39NcR0D\"\n}"
+				},
+				"url": {
+					"raw": "localhost:7777/GetLoanDoc",
+					"host": [
+						"localhost"
+					],
+					"port": "7777",
+					"path": [
+						"GetLoanDoc"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetTokenInfo",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "558344f429d66e42b53ff6449710cea0f79211c2163d3d92b4180eaee3b6afd1"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"bc_user\": \"NodeMoonLaNiTiSukJai\",\n      \"loan_id\": \"0x6552b64b21f059cef1e46a2147c1f0c8e166a2bc62e17b09f3f9a8dc0aa2908a\"\n}"
+				},
+				"url": {
+					"raw": "localhost:7777/GetTokenInfo",
+					"host": [
+						"localhost"
+					],
+					"port": "7777",
+					"path": [
+						"GetTokenInfo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "IssueBorrow",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "558344f429d66e42b53ff6449710cea0f79211c2163d3d92b4180eaee3b6afd1"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"bc_user\" : \"NodeMoonLaNiTiSukJai\",\n        \"wallet_address\" : \"0x3921h3921hg7wRipjUIG39sdkOgfkbJe3KWDindoHIsdMiiNSKw\",\n        \"asset_id\": \"0xGDhsud34nsaJHDw59Jh2HDuhJDEJdsfpkKi09YhosII114Sccks\",\n        \"loan\": 1000.00,\n        \"token_amount\": 10\n\n}"
+				},
+				"url": {
+					"raw": "localhost:7777/IssueBorrow",
+					"host": [
+						"localhost"
+					],
+					"port": "7777",
+					"path": [
+						"IssueBorrow"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LenderSellToken",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "558344f429d66e42b53ff6449710cea0f79211c2163d3d92b4180eaee3b6afd1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bc_user\" : \"NodeMoonLaNiTiSukJai\",\n    \"wallet_address\"   : \"0x3921h3921hg7wRipjUIG39sdkOgfkbJe3KWDindoHIsdMiiNSKw\",\n    \"loan_id\": \"0xS0HuhoMs0fMN8M9xWTtWnsDDzJytVL6B9nHq8OTWmstV1nbZY4sInXXWj39NcR0D\",              \n    \"token_amount\": 10\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:7777/LenderSellToken",
+					"host": [
+						"localhost"
+					],
+					"port": "7777",
+					"path": [
+						"LenderSellToken"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LenderBuyToken",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "558344f429d66e42b53ff6449710cea0f79211c2163d3d92b4180eaee3b6afd1"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bc_user\" : \"NodeMoonLaNiTiSukJai\",\n    \"wallet_address\" :\"0x3921h3921hg7wRipjUIG39sdkOgfkbJe3KWDindoHIsdMiiNSKw\",\n    \"loan_id\": \"0xS0HuhoMs0fMN8M9xWTtWnsDDzJytVL6B9nHq8OTWmstV1nbZY4sInXXWj39NcR0D\",              \n    \"token_amount\": \"10\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:7777/LenderBuyToken",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7777",
+					"path": [
+						"LenderBuyToken"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "registerUser",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "558344f429d66e42b53ff6449710cea0f79211c2163d3d92b4180eaee3b6afd1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bc_user\": \"NodeMoonLaNiTiSukJai\",\n    \"OrgDepartment\" : \"org1.department1\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://d94c5b39c025.ngrok.io/registerUser",
+					"protocol": "https",
+					"host": [
+						"d94c5b39c025",
+						"ngrok",
+						"io"
+					],
+					"path": [
+						"registerUser"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
