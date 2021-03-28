@@ -7,3 +7,7 @@
 ```
  ./startFabric.sh
 ```
+# SmartContract
+```
+  - network/chaincode/AmDeFi/go
+```
