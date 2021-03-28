@@ -1,0 +1,47 @@
+{
+  "name": "api-AmDeFi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "localOrg1": "ROLE=developer PORT=7777  ORG=Org1 CA=ca1.example.com MSP=Org1MSP CONNECTTION=dev_config/connection.1.json  node server.js "
+
+  
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/CSBlockchainKmitl/api-AmDeFi.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/CSBlockchainKmitl/api-AmDeFi/issues"
+  },
+  "homepage": "https://gitlab.com/CSBlockchainKmitl/api-AmDeFi#readme",
+  "dependencies": {
+    "assert": "^2.0.0",
+    "body-parser": "^1.19.0",
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "cors": "^2.8.5",
+    "date-and-time": "^0.14.2",
+    "dateformat": "^3.0.3",
+    "express": "^4.17.1",
+    "fabric-ca-client": "^1.4.2",
+    "fabric-client": "^1.4.17",
+    "fabric-network": "^1.4.2",
+    "mariadb": "^2.0.5",
+    "mocha": "^6.2.0",
+    "mock-env": "^0.2.0",
+    "moment": "^2.24.0",
+    "mongoose": "^5.12.2",
+    "nodemon": "^1.19.4",
+    "sha256": "^0.2.0",
+    "should": "^13.2.3",
+    "supertest": "^4.0.2",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "jest": "^24.9.0"
+  }
+}

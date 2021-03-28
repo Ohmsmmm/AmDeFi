@@ -1,0 +1,135 @@
+#
+# Copyright IBM Corp All Rights Reserved
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2'
+
+networks:
+  basic:
+
+services:
+  ca2.example.com:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca2.example.com
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org2.example.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/476718bd31503670e0d6d24910ceb7e5d5c9ddaf54faacf6499121ee13611c93_sk
+    ports:
+      - "9054:7054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw'
+    volumes:
+      - ./crypto-config/peerOrganizations/org2.example.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca2.example.com
+    networks:
+      - basic
+
+
+  peer0.org2.example.com:
+    container_name: peer0.org2.example.com
+    image: hyperledger/fabric-peer
+    environment:
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org2.example.com:9443 #edit by rush fot prometheus
+      - CORE_METRICS_PROVIDER=prometheus #edit by rush fot prometheus
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org2.example.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.example.com:7051
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ID=peer0.org2.example.com
+      - FABRIC_LOGGING_SPEC=info
+      - CORE_CHAINCODE_LOGGING_LEVEL=info
+      - CORE_PEER_LOCALMSPID=Org2MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/peer/
+      - CORE_PEER_ADDRESS=peer0.org2.example.com:7051
+      # # the following setting starts chaincode containers on the same
+      # # bridge network as the peers
+      # # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_basic
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: peer node start
+    # command: peer node start --peer-chaincodedev=true
+    ports:
+      - 9051:7051
+      - 9053:7053
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./../chaincode/:/opt/gopath/src/github.com/ #set chaincode on peer
+        - ./crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp:/etc/hyperledger/msp/peer
+        - ./crypto-config/peerOrganizations/org2.example.com/users:/etc/hyperledger/msp/users
+        - ./config:/etc/hyperledger/configtx
+    networks:
+      - basic
+    extra_hosts:
+      - orderer.example.com:178.128.62.186
+      - "peer0.org1.example.com:134.209.101.63"
+      - "peer1.org1.example.com:134.209.101.63"
+      - "peer0.org3.example.com:128.199.151.203"
+      - "peer1.org3.example.com:128.199.151.203"
+
+  peer1.org2.example.com:
+    container_name: peer1.org2.example.com
+    image: hyperledger/fabric-peer
+    environment:
+      - CORE_OPERATIONS_LISTENADDRESS=peer1.org2.example.com:9443 #edit by rush fot prometheus
+      - CORE_METRICS_PROVIDER=prometheus #edit by rush fot prometheus
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.example.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org2.example.com:7051
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ID=peer1.org2.example.com
+      - FABRIC_LOGGING_SPEC=info
+      - CORE_CHAINCODE_LOGGING_LEVEL=info
+      - CORE_PEER_LOCALMSPID=Org2MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/peer/
+      - CORE_PEER_ADDRESS=peer1.org2.example.com:7051
+      # # the following setting starts chaincode containers on the same
+      # # bridge network as the peers
+      # # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_basic
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: peer node start
+    # command: peer node start --peer-chaincodedev=true
+    ports:
+      - 10051:7051
+      - 10053:7053
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./../chaincode/:/opt/gopath/src/github.com/ #set chaincode on peer
+        - ./crypto-config/peerOrganizations/org2.example.com/peers/peer1.org2.example.com/msp:/etc/hyperledger/msp/peer
+        - ./crypto-config/peerOrganizations/org2.example.com/users:/etc/hyperledger/msp/users
+        - ./config:/etc/hyperledger/configtx
+    networks:
+      - basic
+    extra_hosts:
+      - orderer.example.com:178.128.62.186
+      - "peer0.org1.example.com:134.209.101.63"
+      - "peer1.org1.example.com:134.209.101.63"
+      - "peer0.org3.example.com:128.199.151.203"
+      - "peer1.org3.example.com:128.199.151.203"
+#
+#  cli:
+#    container_name: cli
+#    image: hyperledger/fabric-tools
+#    tty: true
+#    environment:
+#      - GOPATH=/opt/gopath
+#      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+#      - FABRIC_LOGGING_SPEC=info
+#      - CORE_PEER_ID=cli
+#      - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+#      - CORE_PEER_LOCALMSPID=Org1MSP
+#      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+#      - CORE_CHAINCODE_KEEPALIVE=10
+#    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+#    command: /bin/bash
+#    volumes:
+#        - /var/run/:/host/var/run/
+#        - ./../chaincode/:/opt/gopath/src/github.com/
+#        - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+#    networks:
+#        - basic
+#    extra_hosts:
+#      - orderer.example.com:178.128.62.186
+#      - "peer0.org1.example.com:134.209.101.63"
+#      - "peer1.org1.example.com:134.209.101.63"
+#      - "peer0.org3.example.com:128.199.151.203"
+#      - "peer1.org3.example.com:128.199.151.203"

@@ -1,0 +1,79 @@
+#
+# Copyright IBM Corp All Rights Reserved
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2'
+
+networks:
+  basic:
+
+services:
+  orderer.example.com:
+    container_name: orderer.example.com
+    image: hyperledger/fabric-orderer
+    environment:
+      - FABRIC_LOGGING_SPEC=info
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/etc/hyperledger/configtx/genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/msp/orderer/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderer
+    command: orderer
+    extra_hosts:
+      - "peer0.org1.example.com:134.209.101.63"
+      - "peer1.org1.example.com:134.209.101.63"
+      - "peer0.org2.example.com:68.183.234.149"
+      - "peer1.org2.example.com:68.183.234.149"
+      - "peer0.org3.example.com:128.199.151.203"
+      - "peer1.org3.example.com:128.199.151.203"
+    ports:
+      - 7050:7050
+    volumes:
+        - ./config/:/etc/hyperledger/configtx
+        - ./crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/:/etc/hyperledger/msp/orderer
+        - ./crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/:/etc/hyperledger/msp/peer0Org1
+        - ./crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/:/etc/hyperledger/msp/peer0Org2
+        - ./crypto-config/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/:/etc/hyperledger/msp/peer0Org3
+        - ./crypto-config/peerOrganizations/org1.example.com/peers/peer1.org1.example.com/:/etc/hyperledger/msp/peer1Org1
+        - ./crypto-config/peerOrganizations/org2.example.com/peers/peer1.org2.example.com/:/etc/hyperledger/msp/peer1Org2
+        - ./crypto-config/peerOrganizations/org3.example.com/peers/peer1.org3.example.com/:/etc/hyperledger/msp/peer1Org3
+    networks:
+      - basic
+
+  
+
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - FABRIC_LOGGING_SPEC=info
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+      - CORE_PEER_LOCALMSPID=Org1MSP
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+      - CORE_CHAINCODE_KEEPALIVE=10
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./../chaincode/:/opt/gopath/src/github.com/
+        - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+    networks:
+        - basic
+    extra_hosts:
+      - orderer.example.com:178.128.62.186
+      - peer0.org1.example.com:134.209.101.63
+      - peer1.org1.example.com:134.209.101.63
+      - peer0.org2.example.com:68.183.234.149
+      - peer1.org2.example.com:68.183.234.149
+      - peer0.org3.example.com:128.199.151.203
+      - peer1.org3.example.com:128.199.151.203
+    #depends_on:
+    #  - orderer.example.com
+    #  - peer0.org1.example.com
+    #  - couchdb
