@@ -6,3 +6,7 @@
 ```
  npm run localOrg1
 ``` 
+# PostMan for test
+```
+AmDeFi.postman_collection.json
+```
